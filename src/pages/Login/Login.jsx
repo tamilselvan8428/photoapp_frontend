@@ -36,7 +36,7 @@ export default function Login() {
         : { email, password, displayName }
 
       const response = await axios.post(
-        `http://localhost:5000${endpoint}`, 
+        `https://photoapp-backend-p9ct.onrender.com${endpoint}`, 
         payload,
         { withCredentials: true }
       )
