@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_ROOT = import.meta.env.VITE_API_ROOT || 'http://localhost:5000'
+const API_ROOT = import.meta.env.VITE_API_ROOT || 'https://photoapp-backend-p9ct.onrender.com'
 const axiosInstance = axios.create({
   baseURL: API_ROOT,
   withCredentials: true
