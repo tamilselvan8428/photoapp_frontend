@@ -17,31 +17,40 @@ export default function App() {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // -----------------------------
+  //  FETCH CURRENT USER ON LOAD
+  // -----------------------------
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await getCurrentUser()
-        setUser(res.user)
+        setUser(res?.data?.user ?? null)   // FIX: MUST use res.data.user
       } catch (error) {
-        console.error('Error fetching user:', error)
+        console.error("Error fetching user:", error)
+        setUser(null)
       } finally {
         setIsLoading(false)
       }
     }
-    
     fetchUser()
   }, [])
 
+  // -----------------------------
+  //  HANDLE LOGOUT
+  // -----------------------------
   async function handleLogout() {
     try {
       await logout()
       setUser(null)
-      navigate('/login')
+      navigate("/login", { replace: true })
     } catch (error) {
-      console.error('Error during logout:', error)
+      console.error("Error during logout:", error)
     }
   }
 
+  // -----------------------------
+  //  LOADING SCREEN
+  // -----------------------------
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -50,20 +59,58 @@ export default function App() {
     )
   }
 
+  // -----------------------------
+  //  PROTECTED ROUTE WRAPPER
+  // -----------------------------
+  const Protected = ({ children }) => {
+    return user ? children : <Navigate to="/login" replace />
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar user={user} onLogout={handleLogout} />
-      
+
       <main className="flex-grow">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
+
             <Route path="/" element={<Landing />} />
-            <Route path="/gallery" element={user ? <Gallery user={user} /> : <Navigate to="/login" />} />
-            <Route path="/upload" element={user ? <Upload user={user} /> : <Navigate to="/login" />} />
-            <Route path="/photo/:id" element={user ? <PhotoDetails user={user} /> : <Navigate to="/login" />} />
-            <Route path="/login" element={!user ? <Login /> : <Navigate to="/gallery" />} />
-            <Route path="*" element={<Navigate to="/404" />} />
+
+            <Route
+              path="/gallery"
+              element={
+                <Protected>
+                  <Gallery user={user} />
+                </Protected>
+              }
+            />
+
+            <Route
+              path="/upload"
+              element={
+                <Protected>
+                  <Upload user={user} />
+                </Protected>
+              }
+            />
+
+            <Route
+              path="/photo/:id"
+              element={
+                <Protected>
+                  <PhotoDetails user={user} />
+                </Protected>
+              }
+            />
+
+            <Route
+              path="/login"
+              element={!user ? <Login /> : <Navigate to="/gallery" replace />}
+            />
+
             <Route path="/404" element={<NotFound />} />
+            <Route path="*" element={<Navigate to="/404" replace />} />
+
           </Routes>
         </AnimatePresence>
       </main>
