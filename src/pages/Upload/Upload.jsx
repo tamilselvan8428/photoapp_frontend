@@ -17,7 +17,7 @@ export default function Upload({ user }) {
       alert('Please select an image file')
       return
     }
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 1 * 1024 * 1024) {
       alert('File size should be less than 5MB')
       return
     }
@@ -37,10 +37,11 @@ async function handleSubmit(e) {
   try {
     setIsUploading(true);
     await uploadPhoto({ 
-      title, 
+      title,
       description, 
       imageBase64: fileData 
     });
+    alert('Photo uploaded successfully!',file.size*1024*1024);
     navigate('/gallery', { state: { refresh: true } });
   } catch (error) {
     console.error('Upload failed:', error);
